@@ -1,0 +1,62 @@
+pipeline {
+    agent any 
+    stages {
+        stage ("checkout") {
+            steps {
+                script {
+                    try {
+                        git 'https://github.com/mankinimbom/maven.git'
+                    }
+                    catch (Exception e1) {
+                       mail bcc: '', body: 'jenkins failed to download code from repository', cc: 'wainkijulse@gmail.com',
+                        from: '', replyTo: '', subject: 'code failed ', to: 'wainkijulse@gmail.com'
+                        error ("git clone failed") 
+                    }
+                }
+            }
+        }
+        stage ("build") {
+            steps {
+                script {
+                    try {
+                        sh 'mvn package'
+                    }
+                    catch (Exception e2) {
+                        mail bcc: '', body: 'jenkins failed to build code', cc: 'wainkijulse@gmail.com', from: '',
+                         replyTo: '', subject: 'code failed to build ', to: 'wainkijulse@gmail.com'
+                         error ("build failed")
+                    }
+                }
+            }
+        }
+        stage ("test") {
+            steps {
+                script {
+                    try {
+                        git 'https://github.com/mankinimbom/testingproject.git'
+                        sh 'java -jar /var/jenkins_home/workspace/grtwo-devopsprogram/testing.jar'
+                    }
+                    catch (Exception e3) {
+                        mail bcc: '', body: '  code test failed', cc: 'wainkijulse@gmail.com', from: '',
+                         replyTo: '', subject: 'code test failed ', to: 'wainkijulse@gmail.com'
+                         error ("code test failed")
+                    }
+                }
+            }
+        }
+        stage ("deploy") {
+            steps {
+                script {
+                    try {
+                        deploy adapters: [tomcat9(credentialsId: 'julius', path: '', url: 'https://tomcat.atparadigmlabs.com')], contextPath: 'cool', war: '**/*.war'
+                    }
+                    catch (Exception e4) {
+                        mail bcc: '', body: '  code failed to deploy', cc: 'wainkijulse@gmail.com', from: '',
+                         replyTo: '', subject: 'code deployment failed ', to: 'wainkijulse@gmail.com'
+                         error ("deployment failed")
+                    }
+                }
+            }
+        }
+    }
+}
