@@ -1,0 +1,98 @@
+pipeline {
+    agent any 
+    stages {
+        stage ("checkout") {
+            steps {
+                script {
+                    try {
+                        git 'https://github.com/mankinimbom/maven.git'
+                    }
+                    catch (Exception e1) {
+                        mail bcc: '', body: 'git checkout failed', cc: 'wainkijulse@gmail.com', from: '',
+                         replyTo: '', subject: 'git clone failed', to: 'wainkijulse@gmail.com'
+                         error ("git clone failed")
+                    }
+                }
+            }
+        }
+        stage ("build") {
+            steps {
+                script {
+                    try {
+                        sh 'mvn package'
+                    }
+                    catch (Exception e2) {
+                        mail bcc: '', body: 'git build failed', cc: 'wainkijulse@gmail.com', from: '',
+                         replyTo: '', subject: 'git build failed', to: 'wainkijulse@gmail.com'
+                         error ("git build failed")
+                    }
+
+                }
+            }
+        }
+        stage ("sonar") {
+            steps {
+                script {
+                    try {
+                        withSonarQubeEnv(credentialsId: 'sonar') {
+                        sh 'mvn sonar:sonar'
+}
+                    }
+                    catch (Exception e3) {
+                          mail bcc: '', body: 'snar failed', cc: 'wainkijulse@gmail.com', from: '',
+                         replyTo: '', subject: 'sonar failed', to: 'wainkijulse@gmail.com'
+                         error ("sonar scan failed")
+                    }
+                }
+            }
+        }
+         stage ("test") {
+            steps {
+                script {
+                    try {
+                        git 'https://github.com/mankinimbom/testingproject.git'
+                        sh 'java -jar /var/jenkins_home/workspace/grtwo-julius4/testing.jar '
+
+                    }
+                    catch (Exception e2) {
+                        mail bcc: '', body: 'git test failed', cc: 'wainkijulse@gmail.com', from: '',
+                         replyTo: '', subject: 'git test failed', to: 'wainkijulse@gmail.com'
+                         error ("test failed")
+                    }
+
+                }
+            }
+        }
+         stage ("nexus") {
+            steps {
+                script {
+                    try {
+                        nexusArtifactUploader artifacts: [[artifactId: 'webapp', classifier: '', file: '/var/jenkins_home/workspace/grtwo-transformationproject/webapp/target/webapp.war', type: 'war']], credentialsId: 'nexus', groupId: 'webapp', nexusUrl: 'nexus.atparadigmlabs.com', nexusVersion: 'nexus3',
+                         protocol: 'https', repository: 'maven-central', version: '1.0-Realease'
+                    }
+                    catch (Exception e2) {
+                        mail bcc: '', body: 'nexus failed', cc: 'wainkijulse@gmail.com', from: '',
+                         replyTo: '', subject: 'nexus failed', to: 'wainkijulse@gmail.com'
+                         error ("nexus failed")
+                    }
+
+                }
+            }
+        }
+         stage ("deploy") {
+            steps {
+                script {
+                    try {
+                        deploy adapters: [tomcat9(credentialsId: 'tomcatweb', path: '', url: 'https://tomcat.atparadigmlabs.com')], contextPath: 'seen', war: '**/*.war'
+                    }
+                    catch (Exception e2) {
+                        mail bcc: '', body: 'deploy failed', cc: 'wainkijulse@gmail.com', from: '',
+                         replyTo: '', subject: 'deploy failed', to: 'wainkijulse@gmail.com'
+                         error ("deployment failed")
+                    }
+
+                }
+            }
+        }
+    }
+}
