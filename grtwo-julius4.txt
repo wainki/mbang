@@ -5,6 +5,7 @@ pipeline {
             steps {
                 script {
                     try {
+                        echo 'Downloading the code from github repository'
                         git 'https://github.com/mankinimbom/maven.git'
                     }
                     catch (Exception e1) {
