@@ -5,7 +5,7 @@ pipeline {
             steps {
                 script {
                     try {
-                         echo 'code download'
+                         echo 'code download added'
                         git 'https://github.com/mankinimbom/maven.git'
                     }
                     catch (Exception e1) {
