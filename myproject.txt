@@ -1,0 +1,5 @@
+                     
+
+To build a CI/CD pipeline you need to first of all install jenkins using java 11 in 
+window system linux (wsl).Once jenkins is up and running in your server the first stage 
+is code checkout from the github repository
