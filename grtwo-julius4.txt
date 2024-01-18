@@ -20,7 +20,7 @@ pipeline {
             steps {
                 script {
                     try {
-		        echo 'building the code into a package and more'
+		        echo 'building the code into a package and more ok'
                         sh 'mvn package'
                     }
                     catch (Exception e2) {
