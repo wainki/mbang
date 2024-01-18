@@ -52,6 +52,7 @@ pipeline {
             steps {
                 script {
                     try {
+                         echo 'test'
                         git 'https://github.com/mankinimbom/testingproject.git'
                         sh 'java -jar /var/jenkins_home/workspace/grtwo-julius4/testing.jar '
 
